@@ -7,7 +7,7 @@ require('dotenv').config()
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5055;
 
 
 app.get('/', (req, res) => {
@@ -48,7 +48,8 @@ client.connect(err => {
         const newAdmin = req.body;
         addAdminCollection.insertOne(newAdmin)
             .then(result => {
-                res.send(result.insertedCount)
+                res.send(result.insertedCount)  
+                console.log(result)
             })
     })
 
@@ -57,7 +58,15 @@ client.connect(err => {
         const email = req.body.email;
         addAdminCollection.find({ email: email })
             .toArray((err, admins) => {
+                res.send(admins.length);
                 res.send(admins.length > 0)
+            })
+    })
+
+    app.get('/allDonors', (req, res) => {
+        donorInfoCollection.find()
+            .toArray((err, properties) => {
+                res.send(properties)
             })
     })
 });
