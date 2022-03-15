@@ -7,7 +7,7 @@ require('dotenv').config()
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 
 
 app.get('/', (req, res) => {
@@ -19,6 +19,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
     const donorInfoCollection = client.db("Blood_Donation_CSE_3100").collection("DonorInfo");
+    const addAdminCollection = client.db("Blood_Donation_CSE_3100").collection("AddAdmin");
 
     // uploading donor data in database
     app.post('/beDonor', (req, res) => {
@@ -39,6 +40,24 @@ client.connect(err => {
         })
             .toArray((error, donors) => {
                 res.send(donors);
+            })
+    })
+
+    // add new admin in database
+    app.post('/addAdmin', (req, res) => {
+        const newAdmin = req.body;
+        addAdminCollection.insertOne(newAdmin)
+            .then(result => {
+                res.send(result.insertedCount)
+            })
+    })
+
+
+    app.post('/isAdmin', (req, res) => {
+        const email = req.body.email;
+        addAdminCollection.find({ email: email })
+            .toArray((err, admins) => {
+                res.send(admins.length > 0)
             })
     })
 });
